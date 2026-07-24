@@ -5,6 +5,8 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
         - name: Checkout code
           uses: actions/checkout@v6
@@ -12,8 +14,12 @@ jobs:
           uses: actions/setup-go@v6
           with:
             go-version: '1.26.0'
+        - name: Install gooe
+          run: go install goose
         - name: Build
           run: ./scripts/buildprod.sh
+        - name: Migration database
+          run: go run ./scripts/migrateup.sh
         - id: 'auth'
           uses: 'google-github-actions/auth@v2'
           with:
